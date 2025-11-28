@@ -1,8 +1,12 @@
 import { useMemo, useRef, useState } from 'react';
 import InputField from './components/InputField';
 import ClampDisplay from './components/ClampDisplay';
+import { AnimatePresence } from 'motion/react';
+import LocalDataViewModal from './components/LocalDataViewModal';
+import { BookMarked } from 'lucide-react';
+import { ToastContainer, Tooltip } from 'kitzo/react';
 
-type GenerateClampSizeProps = {
+export type GenerateClampSizeProps = {
   min_viewport_width: number;
   max_viewport_width: number;
   min_size: number;
@@ -14,10 +18,13 @@ type FinalSizes = {
   max: number;
   slopeVw: number;
   interceptPx: number;
+  input_values: GenerateClampSizeProps;
 };
 
 export default function App() {
   const [finalSizes, setFinalSizes] = useState<FinalSizes | null>(null);
+  const [prefix, setPrefix] = useState('');
+  const formSubmitBtn = useRef<HTMLButtonElement>(null);
 
   const display = useMemo(() => {
     if (!finalSizes) return null;
@@ -39,6 +46,7 @@ export default function App() {
         px: tailwindcssPx,
         rem: tailwindcssRem,
       },
+      input_values: finalSizes.input_values,
     };
   }, [finalSizes]);
 
@@ -58,9 +66,16 @@ export default function App() {
       max: max_size,
       slopeVw,
       interceptPx,
+      input_values: {
+        max_viewport_width,
+        min_viewport_width,
+        min_size,
+        max_size,
+      },
     });
   }
 
+  // trigger function
   function submitForm(form: HTMLFormElement) {
     const min_viewport_unit = form.min_viewport_width.dataset.unit;
     const max_viewport_unit = form.max_viewport_width.dataset.unit;
@@ -80,6 +95,7 @@ export default function App() {
     if (max_size_unit === 'rem') max_size = max_size * 16;
 
     if (min_viewport_width >= max_viewport_width) return setFinalSizes(null);
+    if (min_size >= max_size) return setFinalSizes(null);
 
     if (
       isNaN(min_viewport_width) ||
@@ -99,15 +115,14 @@ export default function App() {
     });
   }
 
-  const [prefix, setPrefix] = useState('');
-  const formSubmitBtn = useRef<HTMLButtonElement>(null);
+  const [modal, setModal] = useState(false);
 
   return (
-    <main className="height-screen grid place-items-center overflow-y-auto bg-(--main-bg-clr) p-4 pt-16 pb-12">
-      <div className="fixed top-2 left-2">
+    <main className="height-screen grid place-items-center overflow-y-auto bg-(--main-bg-clr) p-4 pt-16 pb-26">
+      <div className="fixed top-2 left-2 z-10">
         <button
           onClick={() => window.location.reload()}
-          className="rounded-md bg-white px-2 py-1 text-xl font-semibold"
+          className="rounded-md bg-white/80 px-2 py-1 text-xl font-semibold backdrop-blur-xs"
         >
           KitzoClamp
         </button>
@@ -155,7 +170,7 @@ export default function App() {
             />
           </div>
 
-          <div className="my-8">
+          <div className="">
             <button
               ref={formSubmitBtn}
               type="submit"
@@ -163,6 +178,21 @@ export default function App() {
             ></button>
           </div>
         </form>
+
+        <div className="my-8 ml-auto w-fit">
+          <Tooltip
+            content="View saved clamps"
+            tooltipOptions={{ position: 'left' }}
+          >
+            <button
+              onClick={() => setModal(true)}
+              className="flex items-center gap-2 rounded-md border border-zinc-200 bg-zinc-100 px-2 py-1.5 text-sm"
+            >
+              <BookMarked size="14" />
+              <span className="pointer-fine:hidden">View saved</span>
+            </button>
+          </Tooltip>
+        </div>
 
         <div>
           {finalSizes && display ? (
@@ -189,6 +219,7 @@ export default function App() {
                     unit="px"
                     content={display.normal.px}
                     prefix={prefix}
+                    input_values={display.input_values}
                   />
 
                   <ClampDisplay
@@ -196,18 +227,21 @@ export default function App() {
                     unit="rem"
                     content={display.normal.rem}
                     prefix={prefix}
+                    input_values={display.input_values}
                   />
                   <ClampDisplay
                     name="Tailwindcss"
                     unit="px"
                     content={display.tailwindcss.px}
                     prefix={prefix}
+                    input_values={display.input_values}
                   />
                   <ClampDisplay
                     name="Tailwindcss"
                     unit="rem"
                     content={display.tailwindcss.rem}
                     prefix={prefix}
+                    input_values={display.input_values}
                   />
                 </div>
               </div>
@@ -221,6 +255,12 @@ export default function App() {
           )}
         </div>
       </div>
+
+      <AnimatePresence>
+        {modal && <LocalDataViewModal setModal={setModal} />}
+      </AnimatePresence>
+
+      <ToastContainer />
     </main>
   );
 }
