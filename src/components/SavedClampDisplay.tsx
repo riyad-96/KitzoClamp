@@ -2,7 +2,7 @@ import React from 'react';
 import { toast, Tooltip } from 'kitzo/react';
 import kitzo from 'kitzo';
 import type { ClampDisplayProps } from './ClampDisplay';
-import { ClipboardCheck, Trash, Clipboard } from 'lucide-react';
+import { ClipboardCheck, Clipboard, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 
 type SavedClampDisplayProps = {
@@ -14,14 +14,15 @@ export default function SavedClampDisplay({
   clampData,
   setDeleting,
 }: SavedClampDisplayProps) {
-  const { content, name, unit, input_values } = clampData;
+  const { content, name, unit, prefix, suffix, input_values } = clampData;
+  const finalClamp = prefix + content + suffix;
   const [copied, setCopied] = useState(false);
 
   return (
     <div className="group relative space-y-1 rounded-lg bg-zinc-100 px-3 py-1">
       <h5>
         <span className="font-medium">{name}:</span>{' '}
-        <span className="rounded-md bg-zinc-200 px-1.5 code-font text-sm tracking-wide">
+        <span className="code-font rounded-md bg-zinc-200 px-1.5 text-sm tracking-wide">
           {unit}
         </span>
       </h5>
@@ -41,21 +42,24 @@ export default function SavedClampDisplay({
         </p>
       </div>
 
-      <p className="code-font break-all">{content}</p>
+      <p className="code-font break-all">{finalClamp}</p>
 
-      <div className="absolute right-2 bottom-2 z-10 flex gap-2">
+      <div className="absolute top-2 right-2 z-10 flex gap-2">
         <Tooltip
           content={
             <span className="rounded-md bg-zinc-800 px-1.5 py-1 text-xs text-white">
               Delete
             </span>
           }
+          tooltipOptions={{
+            position: 'bottom',
+          }}
         >
           <button
-            onClick={() => setDeleting(content)}
+            onClick={() => setDeleting(finalClamp)}
             className="grid size-[30px] transform-gpu place-items-center rounded-md bg-white shadow-sm transition-[opacity,scale] pointer-fine:scale-80 pointer-fine:opacity-0 pointer-fine:group-hover:scale-100 pointer-fine:group-hover:opacity-100"
           >
-            <Trash size="16" />
+            <Trash2Icon size="16" />
           </button>
         </Tooltip>
         <Tooltip
@@ -64,11 +68,14 @@ export default function SavedClampDisplay({
               {copied ? 'Copied' : 'Copy'}
             </span>
           }
+          tooltipOptions={{
+            position: 'bottom',
+          }}
         >
           <button
             onClick={() => {
               if (copied) return;
-              kitzo.copy(content);
+              kitzo.copy(finalClamp);
               setCopied(true);
               toast.success('Clamp copied');
               setTimeout(() => setCopied(false), 2000);

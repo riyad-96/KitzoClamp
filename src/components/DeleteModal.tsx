@@ -19,9 +19,19 @@ export default function DeleteModal({
     );
     localStorage.setItem(
       'saved-clamps',
-      JSON.stringify(savedData.filter((d) => d.content !== content)),
+      JSON.stringify(
+        savedData.filter((d) => {
+          const added = d.prefix + d.content + d.suffix;
+          return added !== content;
+        }),
+      ),
     );
-    setSavedData((prev) => prev.filter((d) => d.content !== content));
+    setSavedData((prev) =>
+      prev.filter((d) => {
+        const added = d.prefix + d.content + d.suffix;
+        return added !== content;
+      }),
+    );
     setDeleting(null);
     toast.success('Clamp removed');
   };
@@ -55,7 +65,7 @@ export default function DeleteModal({
         className="w-full max-w-[450px] rounded-xl bg-white p-4 shadow-md"
       >
         <h5 className="text-lg font-medium">Delete this clamp?</h5>
-        <p className="code-font break-all" >{content}</p>
+        <p className="code-font break-all">{content}</p>
 
         <div className="mt-4 flex justify-end gap-1">
           <button

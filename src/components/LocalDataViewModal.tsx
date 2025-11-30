@@ -43,14 +43,14 @@ export default function LocalDataViewModal({
           scale: 0.8,
           opacity: 0,
         }}
-        className="w-full max-w-[600px] rounded-xl bg-white p-4 shadow-md"
+        className="w-full max-w-[650px] rounded-xl bg-white p-4 shadow-md"
       >
         <h3 className="mb-2 text-xl font-medium">Saved clamps</h3>
         {savedData.length > 0 ? (
-          <div className="grid max-h-[345px] gap-2 overflow-y-auto rounded-lg pr-1">
+          <div className="grid max-h-[345px] overflow-y-auto gap-2 pr-1">
             {savedData.map((d) => (
               <SavedClampDisplay
-                key={d.content}
+                key={d.prefix + d.content + d.suffix}
                 clampData={d}
                 setDeleting={setDeleting}
               />

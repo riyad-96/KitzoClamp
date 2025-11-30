@@ -9,6 +9,7 @@ export type ClampDisplayProps = {
   name: string;
   unit: string;
   prefix: string;
+  suffix: string;
   input_values: GenerateClampSizeProps;
 };
 
@@ -17,22 +18,34 @@ export default function ClampDisplay({
   name,
   unit,
   prefix,
+  suffix,
   input_values,
 }: ClampDisplayProps) {
+  const finalContent = prefix + content + suffix;
+
   const [copied, setCopied] = useState(false);
 
   const [saved, setSaved] = useState(() => {
     const savedData: ClampDisplayProps[] =
       JSON.parse(localStorage.getItem('saved-clamps') as string) || [];
-    const exists = savedData.find((d) => d.content === content);
+    const exists = savedData.find((d) => {
+      const added = d.prefix + d.content + d.suffix;
+      return added === finalContent;
+    });
     return exists ? true : false;
   });
 
   function saveClampData(data: ClampDisplayProps) {
+    const inComingAdded = data.prefix + data.content + data.suffix;
+
     const savedData: ClampDisplayProps[] =
       JSON.parse(localStorage.getItem('saved-clamps') as string) || [];
 
-    const exists = savedData.find((d) => d.content === data.content);
+    const exists = savedData.find((d) => {
+      const added = d.prefix + d.content + d.suffix;
+      return added === inComingAdded;
+    });
+    
     if (exists) {
       toast.error('Clamp already saved!');
       return;
@@ -49,22 +62,26 @@ export default function ClampDisplay({
       <div>
         <div className="mb-2 flex items-center gap-1">
           <span className="font-semibold">{name}</span>
-          <span className="rounded-md bg-zinc-200 px-1.5 code-font text-sm tracking-wide">
+          <span className="code-font rounded-md bg-zinc-200 px-1.5 text-sm tracking-wide">
             {unit}
           </span>
           <span className="font-semibold">:</span>
         </div>
-        <p className="code-font break-all">
-          <span className="font-medium">{prefix}</span>
-          {content}
-        </p>
+        <p className="code-font break-all">{finalContent}</p>
       </div>
 
       <div className="absolute top-1.5 right-1.5 flex gap-2">
         <Tooltip content={saved ? 'Saved' : 'Save'}>
           <button
             onClick={() => {
-              saveClampData({ name, content, prefix, unit, input_values });
+              saveClampData({
+                name,
+                content,
+                prefix,
+                suffix,
+                unit,
+                input_values,
+              });
             }}
             className="group-hover: grid size-[30px] transform-gpu place-items-center rounded-md bg-white shadow-sm transition-[opacity,scale] pointer-fine:scale-80 pointer-fine:opacity-0 pointer-fine:group-hover:scale-100 pointer-fine:group-hover:opacity-100"
           >
@@ -83,8 +100,8 @@ export default function ClampDisplay({
         <Tooltip content={copied ? 'Copied' : 'Copy'}>
           <button
             onClick={() => {
+              kitzo.copy(finalContent);
               if (copied) return;
-              kitzo.copy(prefix + content);
               setCopied(true);
               toast.success('Clamp copied');
               setTimeout(() => setCopied(false), 2000);

@@ -21,9 +21,17 @@ type FinalSizes = {
   input_values: GenerateClampSizeProps;
 };
 
+type PassDisplayClampTypes = {
+  name: 'CSS' | 'Tailwindcss';
+  unit: 'px' | 'rem';
+  value: string;
+  input_values: GenerateClampSizeProps;
+};
+
 export default function App() {
   const [finalSizes, setFinalSizes] = useState<FinalSizes | null>(null);
   const [prefix, setPrefix] = useState('');
+  const [suffix, setSuffix] = useState('');
   const formSubmitBtn = useRef<HTMLButtonElement>(null);
 
   const display = useMemo(() => {
@@ -37,17 +45,34 @@ export default function App() {
     const tailwindcssPx = `clamp(${f(finalSizes.min)}px,${f(finalSizes.interceptPx)}px+${f(finalSizes.slopeVw)}vw,${f(finalSizes.max)}px)`;
     const tailwindcssRem = `clamp(${f(finalSizes.min / 16)}rem,${f(finalSizes.interceptPx / 16)}rem+${f(finalSizes.slopeVw)}vw,${f(finalSizes.max / 16)}rem)`;
 
-    return {
-      normal: {
-        px: normalPx,
-        rem: normalRem,
+    const data: PassDisplayClampTypes[] = [
+      {
+        name: 'CSS',
+        unit: 'px',
+        value: normalPx,
+        input_values: finalSizes.input_values,
       },
-      tailwindcss: {
-        px: tailwindcssPx,
-        rem: tailwindcssRem,
+      {
+        name: 'CSS',
+        unit: 'rem',
+        value: normalRem,
+        input_values: finalSizes.input_values,
       },
-      input_values: finalSizes.input_values,
-    };
+      {
+        name: 'Tailwindcss',
+        unit: 'px',
+        value: tailwindcssPx,
+        input_values: finalSizes.input_values,
+      },
+      {
+        name: 'Tailwindcss',
+        unit: 'rem',
+        value: tailwindcssRem,
+        input_values: finalSizes.input_values,
+      },
+    ];
+
+    return data;
   }, [finalSizes]);
 
   // generate clamp sizes
@@ -128,7 +153,7 @@ export default function App() {
         </button>
       </div>
 
-      <div className="w-full max-w-[600px] mx-auto">
+      <div className="mx-auto w-full max-w-[650px]">
         <div className="mb-6 space-y-2 text-center">
           <h1 className="text-2xl font-bold">CSS Clamp Generator</h1>
           <p className="font-light tracking-wide opacity-80">
@@ -201,48 +226,45 @@ export default function App() {
                 Generated sizes:
               </h2>
               <div className="mt-4">
-                <div className="mb-2 w-fit rounded-md bg-zinc-100 px-2 inset-shadow-xs">
-                  <label htmlFor="prefix">Prefix: </label>
-                  <input
-                    id="prefix"
-                    className="px-2 py-1.5 outline-none"
-                    type="text"
-                    onChange={(e) => setPrefix(e.target.value)}
-                    value={prefix}
-                    placeholder="Add prefix"
-                  />
+                <div className="mb-2 flex gap-2">
+                  <div className="grid flex-1 grid-cols-[auto_1fr] items-center rounded-md bg-zinc-100 px-2 inset-shadow-xs max-sm:text-sm">
+                    <label htmlFor="prefix">Prefix: </label>
+                    <input
+                      id="prefix"
+                      className="min-w-0 px-2 py-1.5 outline-none"
+                      type="text"
+                      onChange={(e) => setPrefix(e.target.value)}
+                      value={prefix}
+                      placeholder="Add prefix"
+                    />
+                  </div>
+
+                  <div className="grid flex-1 grid-cols-[auto_1fr] items-center rounded-md bg-zinc-100 px-2 inset-shadow-xs max-sm:text-sm">
+                    <label htmlFor="prefix">Suffix: </label>
+                    <input
+                      id="suffix"
+                      className="min-w-0 px-2 py-1.5 outline-none"
+                      type="text"
+                      onChange={(e) => setSuffix(e.target.value)}
+                      value={suffix}
+                      placeholder="Add suffix"
+                    />
+                  </div>
                 </div>
 
+                {/* Display clamp results */}
                 <div className="grid gap-2">
-                  <ClampDisplay
-                    name="CSS"
-                    unit="px"
-                    content={display.normal.px}
-                    prefix={prefix}
-                    input_values={display.input_values}
-                  />
-
-                  <ClampDisplay
-                    name="CSS"
-                    unit="rem"
-                    content={display.normal.rem}
-                    prefix={prefix}
-                    input_values={display.input_values}
-                  />
-                  <ClampDisplay
-                    name="Tailwindcss"
-                    unit="px"
-                    content={display.tailwindcss.px}
-                    prefix={prefix}
-                    input_values={display.input_values}
-                  />
-                  <ClampDisplay
-                    name="Tailwindcss"
-                    unit="rem"
-                    content={display.tailwindcss.rem}
-                    prefix={prefix}
-                    input_values={display.input_values}
-                  />
+                  {display.map((d) => (
+                    <ClampDisplay
+                      key={prefix + d.value + suffix}
+                      name={d.name}
+                      content={d.value}
+                      unit={d.unit}
+                      input_values={d.input_values}
+                      prefix={prefix}
+                      suffix={suffix}
+                    />
+                  ))}
                 </div>
               </div>
             </>
