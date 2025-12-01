@@ -1,6 +1,6 @@
 import { toast, Tooltip } from 'kitzo/react';
 import kitzo from 'kitzo';
-import { Book, BookMarked, Clipboard, ClipboardCheck } from 'lucide-react';
+import { Book, BookMarked, CopyCheckIcon, CopyIcon } from 'lucide-react';
 import { useState } from 'react';
 import type { GenerateClampSizeProps } from '../App';
 
@@ -45,7 +45,7 @@ export default function ClampDisplay({
       const added = d.prefix + d.content + d.suffix;
       return added === inComingAdded;
     });
-    
+
     if (exists) {
       toast.error('Clamp already saved!');
       return;
@@ -110,11 +110,11 @@ export default function ClampDisplay({
           >
             {copied ? (
               <span>
-                <ClipboardCheck size="18" />
+                <CopyCheckIcon size="18" />
               </span>
             ) : (
               <span>
-                <Clipboard size="18" />
+                <CopyIcon size="18" />
               </span>
             )}
           </button>

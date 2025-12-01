@@ -2,7 +2,7 @@ import React from 'react';
 import { toast, Tooltip } from 'kitzo/react';
 import kitzo from 'kitzo';
 import type { ClampDisplayProps } from './ClampDisplay';
-import { ClipboardCheck, Clipboard, Trash2Icon } from 'lucide-react';
+import { Trash2Icon, CopyCheckIcon, CopyIcon } from 'lucide-react';
 import { useState } from 'react';
 
 type SavedClampDisplayProps = {
@@ -84,11 +84,11 @@ export default function SavedClampDisplay({
           >
             {copied ? (
               <span>
-                <ClipboardCheck size="16" />
+                <CopyCheckIcon size="16" />
               </span>
             ) : (
               <span>
-                <Clipboard size="16" />
+                <CopyIcon size="16" />
               </span>
             )}
           </button>
