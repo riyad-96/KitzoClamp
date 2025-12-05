@@ -48,26 +48,26 @@ export default function App() {
     const data: PassDisplayClampTypes[] = [
       {
         name: 'CSS',
-        unit: 'px',
-        value: normalPx,
-        input_values: finalSizes.input_values,
-      },
-      {
-        name: 'CSS',
         unit: 'rem',
         value: normalRem,
         input_values: finalSizes.input_values,
       },
       {
         name: 'Tailwindcss',
+        unit: 'rem',
+        value: tailwindcssRem,
+        input_values: finalSizes.input_values,
+      },
+      {
+        name: 'CSS',
         unit: 'px',
-        value: tailwindcssPx,
+        value: normalPx,
         input_values: finalSizes.input_values,
       },
       {
         name: 'Tailwindcss',
-        unit: 'rem',
-        value: tailwindcssRem,
+        unit: 'px',
+        value: tailwindcssPx,
         input_values: finalSizes.input_values,
       },
     ];
